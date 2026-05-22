@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREEN-API Client Test Task</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Стили для кастомизации, если понадобятся */
+        textarea { font-family: monospace; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Тестовое задание: GREEN-API</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Левая колонка: Управление -->
+            <div class="space-y-6">
+                <!-- Учетные данные -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Параметры подключения</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">idInstance</label>
+                            <input id="idInstance" type="text" placeholder="1101000001" class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">apiTokenInstance</label>
+                            <input id="apiTokenInstance" type="password" placeholder="d75b3a..." class="w-full p-2 border rounded text-sm focus:outline-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Методы -->
+                <div class="space-y-3">
+                    <button onclick="getSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                        getSettings
+                    </button>
+                    <button onclick="getStateInstance()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                        getStateInstance
+                    </button>
+                    
+                    <hr class="border-gray-200 my-4">
+
+                    <!-- Отправка сообщения -->
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <label class="block text-xs text-gray-500 mb-1">Номер телефона (с кодом страны, без +)</label>
+                        <input id="chatIdMessage" type="text" placeholder="77011234567" class="w-full p-2 border rounded text-sm mb-2">
+                        <label class="block text-xs text-gray-500 mb-1">Текст сообщения</label>
+                        <input id="messageText" type="text" placeholder="Привет от GREEN-API!" class="w-full p-2 border rounded text-sm mb-2">
+                        <button onclick="sendMessage()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                            sendMessage
+                        </button>
+                    </div>
+
+                    <!-- Отправка файла -->
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <label class="block text-xs text-gray-500 mb-1">Номер телефона</label>
+                        <input id="chatIdFile" type="text" placeholder="77011234567" class="w-full p-2 border rounded text-sm mb-2">
+                        <label class="block text-xs text-gray-500 mb-1">Ссылка на файл</label>
+                        <input id="fileUrl" type="text" placeholder="https://domain.com/picture.jpg" class="w-full p-2 border rounded text-sm mb-2">
+                        <label class="block text-xs text-gray-500 mb-1">Имя файла с расширением</label>
+                        <input id="fileName" type="text" placeholder="picture.jpg" class="w-full p-2 border rounded text-sm mb-2">
+                        <button onclick="sendFileByUrl()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                            sendFileByUrl
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: Ответ (Отдельное поле только для чтения) -->
+            <div class="flex flex-col h-full">
+                <label class="block text-sm font-semibold text-gray-700 uppercase tracking-wider mb-2">Ответ методов (Response):</label>
+                <textarea id="responseField" readonly class="w-full flex-grow p-4 bg-gray-900 text-green-400 border rounded-lg resize-none text-xs min-h-[400px] focus:outline-none" placeholder=' здесь будет выведен ответ от API...'></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'https://7103.api.greenapi.com'; // Используй базовый URL из документации, если он отличается
+
+        function getCredentials() {
+            const idInstance = document.getElementById('idInstance').value.trim();
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value.trim();
+            if (!idInstance || !apiTokenInstance) {
+                alert('Пожалуйста, заполните idInstance и apiTokenInstance');
+                return null;
+            }
+            return { idInstance, apiTokenInstance };
+        }
+
+        function printResponse(data) {
+            document.getElementById('responseField').value = JSON.stringify(data, null, 4);
+        }
+
+        async function makeRequest(method, endpoint, body = null) {
+            const creds = getCredentials();
+            if (!creds) return;
+
+            const url = `${baseUrl}/waInstance${creds.idInstance}/${endpoint}/${creds.apiTokenInstance}`;
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            try {
+                document.getElementById('responseField').value = 'Выполнение запроса...';
+                const response = await fetch(url, options);
+                const data = await response.json();
+                printResponse(data);
+            } catch (error) {
+                printResponse({ error: 'Ошибка запроса', message: error.message });
+            }
+        }
+
+        function getSettings() {
+            makeRequest('GET', 'getSettings');
+        }
+
+        function getStateInstance() {
+            makeRequest('GET', 'getStateInstance');
+        }
+
+        function sendMessage() {
+            const phone = document.getElementById('chatIdMessage').value.trim();
+            const text = document.getElementById('messageText').value;
+            
+            if (!phone || !text) {
+                alert('Заполните номер телефона и текст сообщения');
+                return;
+            }
+
+            const body = {
+                chatId: `${phone}@c.us`,
+                message: text
+            };
+            makeRequest('POST', 'sendMessage', body);
+        }
+
+        function sendFileByUrl() {
+            const phone = document.getElementById('chatIdFile').value.trim();
+            const url = document.getElementById('fileUrl').value.trim();
+            const name = document.getElementById('fileName').value.trim();
+
+            if (!phone || !url || !name) {
+                alert('Заполните все поля для отправки файла');
+                return;
+            }
+
+            const body = {
+                chatId: `${phone}@c.us`,
+                urlFile: url,
+                fileName: name
+            };
+            makeRequest('POST', 'sendFileByUrl', body);
+        }
+    </script>
+</body>
+</html>
