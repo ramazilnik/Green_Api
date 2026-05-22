@@ -4,7 +4,7 @@
 
 ## Ссылки на проект
 * Рабочая страница (GitHub Pages): https://ramazilnik.github.io/Green_Api/
-* Видео-демонстрация работы: https://drive.google.com/file/d/1AUuH67LqHzE6qSUN2iWUfVpBa-KUe8Lf/view?usp=drive_link
+* Видео-демонстрация работы: https://drive.google.com/file/d/1H8p7iWJXkVOPQCsgzcrY08XU0nc04roM/view?usp=drive_link
 
 ## Технологический стек
 * Frontend: HTML5, JavaScript (ES6, Fetch API)
